@@ -1,0 +1,886 @@
+
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Instagram NFT Backend API",
+    "description": "API for instagram NFT backend",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "paths": {
+    "/refresh-access": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "description": "Refresh access token after main token expired",
+        "parameters": [
+          {
+            "name": "refreshToken",
+            "in": "body",
+            "description": "refresh token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success on refresh token",
+            "schema": {
+              "$ref": "#/definitions/RefreshTokenResponse"
+            }
+          }
+        }
+      }
+    },
+    "/signup": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "descripton": "Signup with email",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "body",
+            "description": "Username on signup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fullName",
+            "in": "body",
+            "description": "Full name on signup",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "email",
+            "in": "body",
+            "description": "Email on signup",
+            "schema": {
+              "type": "string",
+              "format": "Email"
+            }
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "Encrypted Password",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success on Signup",
+            "schema": {
+              "$ref": "#/definitions/LoginResponseDTO"
+            }
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "description": "Login existing user or create new user with instagram account information",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "body",
+            "description": "Email",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "Email"
+            }
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "Encrypted Password",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Login Success",
+            "schema": {
+              "$ref": "#/definitions/LoginResponseDTO"
+            }
+          }
+        }
+      }
+    },
+    "/login-instagram": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "description": "Login or signup with instagram Account",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "body",
+            "description": "Code which is returned from instagram account access",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "body",
+            "description": "Redirect URI which is used on instagram API access on frontend",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "url"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Login or signup Success on instagram account login details",
+            "schema": {
+              "$ref": "#/definitions/LoginResponseDTO"
+            }
+          }
+        }
+      }
+    },
+    "/user/connect-instagram": {
+      "post": {
+        "tags": [
+          "Instagram"
+        ],
+        "description": "connect Instagram Account",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "body",
+            "description": "Code which is returned from instagram account access",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "redirect_uri",
+            "in": "body",
+            "description": "Redirect URI which is used on instagram API access on frontend",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "url"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Connect instagram with account successfully",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/get-profile": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Get User profile information by user token",
+        "parameters": [],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile info details",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/user/{userId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Get User profile information by user Id",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "param",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Login or signup Success on instagram account login details",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/get-post/{url}": {
+      "get": {
+        "tags": [
+          "Instagram"
+        ],
+        "description": "Get instagram post content by url",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "param",
+            "description": "instagram post url",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Post content by Rapid API response",
+            "schema": {
+              "$ref": "#/definitions/OfferDTO"
+            }
+          }
+        }
+      }
+    },
+    "/instagram/posts": {
+      "post": {
+        "tags": [
+          "Instagram"
+        ],
+        "description": "Get instagram posts by instagram username",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "body",
+            "description": "instagram username",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "more posts from isntagram user",
+            "schema": {
+              "type": "array",
+              "$ref": "#/definitions/Post"
+            }
+          }
+        }
+      }
+    },
+    "/offer": {
+      "post": {
+        "tags": [
+          "Offer"
+        ],
+        "description": "Create offer with post content",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "body",
+            "description": "Instagram post title",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "url",
+            "in": "body",
+            "description": "Instagram post url",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "in": "body",
+            "description": "Instagram post media url(image or video)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "likes",
+            "in": "body",
+            "description": "Instagram post likes amount",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "comments",
+            "in": "body",
+            "description": "Instagram post comments amount",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "price",
+            "in": "body",
+            "description": "Instagram post title",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "create offer with post id",
+            "schema": {
+              "$ref": "#/definitions/OfferDTO"
+            }
+          }
+        }
+      }
+    },
+    "/user/offer/{userId}": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "get all offers for an user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "param",
+            "description": "user id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get Offers by user Id",
+            "schema": {
+              "$ref": "#/definitions/OfferDTO"
+            }
+          }
+        }
+      }
+    },
+    "/user/auctions/{userId}": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "get all incoming auctions for an user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "param",
+            "description": "user id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get all incoming auctions  by user Id",
+            "schema": {
+              "$ref": "#/definitions/AuctionDTO"
+            }
+          }
+        }
+      }
+    },
+    "/user/nfts/{userId}": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "get all NFT for an user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "param",
+            "description": "user id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get all NFT by user Id",
+            "schema": {
+              "$ref": "#/definitions/AuctionDTO"
+            }
+          }
+        }
+      }
+    },
+    "/offer/{id}": {
+      "get": {
+        "tags": [
+          "Offer"
+        ],
+        "description": "get offer by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "param",
+            "description": "offer id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get Offer by Offer Id",
+            "schema": {
+              "$ref": "#/definitions/OfferDTO"
+            }
+          }
+        }
+      }
+    },
+    "/offers/{page}/{size}/{isSold}": {
+      "get": {
+        "tags": [
+          "Offer"
+        ],
+        "description": "Get offers by pagination and its status",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "param",
+            "description": "page number for offset",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "size",
+            "in": "param",
+            "description": "page size for each page",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "isSold",
+            "in": "param",
+            "description": "offer status with sold or not",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Get offers by it's status and pagination",
+            "schema": {
+              "type": "array",
+              "$ref": "#/definitions/AuctionDTO"
+            }
+          }
+        }
+      }
+    },
+    "/accept-offer": {
+      "post": {
+        "description": "Accept offer by it's offer ID",
+        "tags": [
+          "Offer"
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "body",
+            "description": "instagram URL to accept",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "seller",
+            "in": "body",
+            "description": "metamask wallet address of owner",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Buy offer by id",
+            "schema": {
+              "$ref": "#/definitions/AuctionDTO"
+            }
+          }
+        }
+      }
+    },
+    "/cancel-offer": {
+      "post": {
+        "description": "Cancel offer by it's offer url",
+        "tags": [
+          "Offer"
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "body",
+            "description": "instagram URL to cancel",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Cancel offer by id",
+            "schema": {
+              "$ref": "#/definitions/OfferDTO"
+            }
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+  },
+  "definitions": {
+    "RefreshTokenResponse": {
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "LoginResponseDTO": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object",
+          "$ref": "#/definitions/LoginResponse"
+        }
+      }
+    },
+    "User": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "instagramUser": {
+          "$ref": "#/definitions/InstagramUser"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "LoginResponse": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "instagramUser": {
+          "$ref": "#/definitions/InstagramUser"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "InstagramUser": {
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "bio": {
+          "type": "string"
+        },
+        "follows": {
+          "type": "number"
+        },
+        "followings": {
+          "type": "number"
+        },
+        "posts": {
+          "type": "number"
+        }
+      }
+    },
+    "InstagramPostDTO": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    },
+    "OfferDTO": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "data": {
+          "$ref": "#/definitions/Offer"
+        }
+      }
+    },
+    "AuctionDTO": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "data": {
+          "$ref": "#/definitions/Auction"
+        }
+      }
+    },
+    "Offer": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        },
+        "buyer": {
+          "$ref": "#/definitions/LoginResponse"
+        },
+        "auction": {
+          "$ref": "#/definitions/Auction"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      }
+    },
+    "Auction": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "post": {
+          "$ref": "#/definitions/Post"
+        },
+        "isFinished": {
+          "type": "boolean"
+        },
+        "winner": {
+          "$ref": "#/definitions/LoginResponse"
+        },
+        "winnerPrice": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      }
+    },
+    "Post": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "thumbnail": {
+          "type": "string"
+        },
+        "likes": {
+          "type": "number"
+        },
+        "comments": {
+          "type": "number"
+        },
+        "instagramUser": {
+          "$ref": "#/definitions/InstagramUser"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "API for authenticating users in platform"
+    }
+  ],
+  "schemes": [
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ]
+}
