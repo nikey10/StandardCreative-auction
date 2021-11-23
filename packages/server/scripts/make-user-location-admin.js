@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const dotenv = require('dotenv');
 const cli = require('cli');
-const Sequelize = require('sequelize');
+const {PrismaClient} = require('@prisma/client');
 
 dotenv.config();
 const db = {
@@ -26,99 +26,9 @@ const options = cli.parse({
 
 cli.main(async () => {
     try {
-        const sequelizeClient = new Sequelize({
-            ...db,
-            logging: true,
-            define: {
-                freezeTableName: true
-            }
-        });
+        const prismaClient = new PrismaClient();
 
-        await sequelizeClient.sync();
-
-        const IdentityProvider = sequelizeClient.define('identity_provider', {
-            token: {type: Sequelize.DataTypes.STRING},
-            password: {type: Sequelize.DataTypes.STRING},
-            isVerified: {type: Sequelize.DataTypes.BOOLEAN},
-            verifyToken: {type: Sequelize.DataTypes.STRING},
-            verifyShortToken: {type: Sequelize.DataTypes.STRING},
-            verifyExpires: {type: Sequelize.DataTypes.DATE},
-            verifyChanges: {type: Sequelize.DataTypes.JSON},
-            resetToken: {type: Sequelize.DataTypes.STRING},
-            resetExpires: {type: Sequelize.DataTypes.DATE},
-            userId: {type: Sequelize.DataTypes.STRING}
-        });
-
-        const User = sequelizeClient.define('user', {
-            id: {
-                type: Sequelize.DataTypes.UUID,
-                defaultValue: Sequelize.DataTypes.UUIDV1,
-                allowNull: false,
-                primaryKey: true
-            },
-            name: {
-                type: Sequelize.DataTypes.STRING,
-                allowNull: false
-            },
-            userRole: {
-                type: Sequelize.DataTypes.STRING,
-                allowNull: true
-            }
-        });
-
-        const Party = sequelizeClient.define('party', {
-            id: {
-                type: Sequelize.DataTypes.UUID,
-                defaultValue: Sequelize.DataTypes.UUIDV1,
-                allowNull: false,
-                primaryKey: true
-            },
-            locationId: {
-                type: Sequelize.DataTypes.UUID,
-                allowNull: false
-            }
-        });
-
-        const PartyUser = sequelizeClient.define('party_user', {
-            id: {
-                type: Sequelize.DataTypes.UUID,
-                defaultValue: Sequelize.DataTypes.UUIDV1,
-                allowNull: false,
-                primaryKey: true
-            },
-            isOwner: {
-                type: Sequelize.DataTypes.BOOLEAN
-            },
-            partyId: {
-                type: Sequelize.DataTypes.STRING,
-                allowNull: false
-            },
-            userId: {
-                type: Sequelize.DataTypes.STRING,
-                allowNull: false
-            },
-        });
-
-        const LocationAdmin = sequelizeClient.define('location_admin', {
-            id: {
-                type: Sequelize.DataTypes.UUID,
-                defaultValue: Sequelize.DataTypes.UUIDV1,
-                allowNull: false,
-                primaryKey: true
-            },
-            locationId: {
-                type: Sequelize.DataTypes.UUID,
-                defaultValue: Sequelize.DataTypes.UUIDV1,
-                allowNull: false
-            },
-            userId: {
-                type: Sequelize.DataTypes.UUID,
-                defaultValue: Sequelize.DataTypes.UUIDV1,
-                allowNull: false
-            },
-        });
-
-        const identityProviderMatch = await IdentityProvider.findOne({
+        const identityProviderMatch = await prismaClient.IdentityProvider.findOne({
             where: {
                 token: options.email,
                 type: 'email'
@@ -131,32 +41,34 @@ cli.main(async () => {
 
         const userId = identityProviderMatch.userId;
 
-        const userMatch = await User.findOne({
+        const userMatch = await prismaClient.User.findOne({
             where: {
                 id: userId
             }
         });
 
         userMatch.userRole = 'location-admin';
-        const locationAdmin = await LocationAdmin.findOne({
+        const locationAdmin = await prismaClient.LocationAdmin.findOne({
             where: {
                 locationId: options.locationId,
                 userId: userId
             }
         });
+
         if (locationAdmin == null) {
             await LocationAdmin.create({
                 locationId: options.locationId,
                 userId: userId
             });
         }
+
         await userMatch.save();
 
         cli.ok(`User with email ${options.email} and ID ${identityProviderMatch.userId} made an admin of location ${options.locationId}` );
         process.exit(0);
-    }
-    catch (err) {
-        console.log(err);
+
+    } catch (error) {
+        console.log(error);
         cli.fatal(err);
     }
 });

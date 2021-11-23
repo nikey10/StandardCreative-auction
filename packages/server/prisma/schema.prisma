@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model IdentityProvider {
+  id                  Int               @id @default(autoincrement())
+  token               String?
+  password            String?
+  isVerified          Boolean?
+  verifyToken         String?
+  verifyShortToken    String?
+  verifyExpires       DateTime?
+  verifyChanges       Json?
+  resetToken          String?
+  resetExpires        DateTime?
+  userId              String?
+
+  @@map("identity_provider")
+}
+
+model User {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()::TEXT"))
+  name                String
+  userRole            String?
+
+  @@map("user")
+}
+
+model Party {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()::TEXT"))
+  locationId          String         @default(dbgenerated("gen_random_uuid()::TEXT"))
+
+  @@map("party")
+}
+
+model PartyUser {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()::TEXT"))
+  isOwner             Boolean?
+  partyId             String
+  userId              String
+
+  @@map("party_user")
+}
+
+model LocationAdmin {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()::TEXT"))
+  locationId          String         @default(dbgenerated("gen_random_uuid()::TEXT"))
+  userId              String         @default(dbgenerated("gen_random_uuid()::TEXT"))
+
+  @@map("location_admin")
+}
+
+model staticResource {
+  id                  String         @id @default(dbgenerated("gen_random_uuid()::TEXT"))
+  sid                 String
+  name                String?
+  url                 String?
+  key                 String
+  staticResourceType  String
+  userId              String
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@map("static_resource")
+}

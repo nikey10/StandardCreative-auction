@@ -18,7 +18,7 @@ import winston from 'winston'
 import feathersLogger from 'feathers-logger'
 import { EventEmitter } from 'events'
 import services from '@standardcreative/server-core/src/services'
-import sequelize from '@standardcreative/server-core/src/sequelize'
+import prisma from '@standardcreative/server-core/src/prisma'
 import { Application } from '@standardcreative/server-core/declarations'
 
 const emitter = new EventEmitter()
@@ -64,7 +64,7 @@ if (config.server.enabled) {
     app.set('paginate', config.server.paginate)
     app.set('authentication', config.authentication)
 
-    app.configure(sequelize)
+    app.configure(prisma)
 
     // Enable security, CORS, compression, favicon and body parsing
     app.use(helmet())

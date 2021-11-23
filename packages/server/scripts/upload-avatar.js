@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const dotenv = require('dotenv');
 const fs = require('fs');
-const Sequelize = require('sequelize');
 const aws = require('aws-sdk');
 const { nanoid } = require('nanoid');
+const {PrismaClient} = require('@prisma/client');
+
 
 // TODO: check for existing avatar on S3
 
@@ -27,40 +28,8 @@ const db = {
     `mysql://${this.username}:${this.password}@${this.host}:${this.port}/${this.database}`
 };
 
-const sequelizeClient = new Sequelize({
-    ...db,
-    logging: true,
-    define: {
-        freezeTableName: true
-    },
-});
 
-const staticResource = sequelizeClient.define('static_resource', {
-    id: {
-        type: Sequelize.DataTypes.UUID,
-        defaultValue: Sequelize.DataTypes.UUIDV1,
-        allowNull: false,
-        primaryKey: true
-    },
-    sid: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: false
-    },
-    name: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true
-    },
-    url: {
-        type: Sequelize.DataTypes.STRING,
-        allowNull: true,
-        unique: true,
-    },
-    key: Sequelize.DataTypes.STRING,
-    staticResourceType: Sequelize.DataTypes.STRING,
-    userId: Sequelize.DataTypes.CHAR,
-    createdAt: Sequelize.DataTypes.DATE,
-    updatedAt: Sequelize.DataTypes.DATE,
-});
+const prismaClient = new PrismaClient();
 
 // match case of the name of the avatar and the name of corresponding file.
 // also update seed file of static resource model to match changes.
@@ -138,11 +107,11 @@ const processFile = async (fileName, extension, dirPath, staticResourceType) => 
 new Promise(async (resolve, reject) => {
     try {
         console.log('Removing old DB entries.');
-        await staticResource.destroy({
+        await prismaClient.staticResource.deleteMany({
             where: {
                 userId: null,
                 staticResourceType: {
-                    [Sequelize.Op.in] : [AVATAR_RESOURCE_TYPE, THUMBNAIL_RESOURCE_TYPE],
+                    in : [AVATAR_RESOURCE_TYPE, THUMBNAIL_RESOURCE_TYPE],
                 },
             }
         });
